@@ -15,9 +15,9 @@ struct vector3 {
     double x;
     double y;
     double z;
-    bool comp(const vector3& p) {
+    bool operator==(const vector3& p) {
         bool s = false;
-        if ((x==p.x)&&(y==p.y)&&(z==p.z)) s = true;
+        if ((x == p.x) && (y == p.y)&&(z == p.z)) s = true;
         return s;
     }
 };
@@ -40,7 +40,7 @@ public:
         lsize++;
     };
     int GetSize() {return lsize;};
-    std::string GetStr(int i) {return l[i];};
+    std::string GetStr(int i) const {return l[i];};
 private:
     std::vector<std::string> l;
     int lsize = 0;
@@ -73,19 +73,7 @@ public:
         logger.log("Creation of " + name + "\n");
     };
 
-    Particle(const Particle& p) {
-        this->mass = p.mass;
-        this->charge = p.charge;
-        this->coordinate = p.coordinate;
-        this->velocity = p.velocity;
-        this->force = p.force;
-        this->name = p.name;
-    }
-
-    explicit Particle(double energy);
-    // метод, который вам необходимо переопределить в дочерних классах
-    // см. или вспомнить лекцию
-    // внутри него напишите логику взаимодействия двух частиц (например, кулоновское)
+    Particle(const Particle& p): mass(p.mass), charge(p.charge), coordinate(p.coordinate), velocity(p.velocity), force(p.force), name(p.name) {};
 
     virtual void interaction(Particle& p) {
         vector3 rr = {(-coordinate.x + p.coordinate.x), (-coordinate.y + p.coordinate.y), (-coordinate.z + p.coordinate.z)};
@@ -114,12 +102,12 @@ public:
 
     bool comp (Particle& p) {
         bool s = false;
-        if ((mass == p.mass)&&(charge == p.charge)&&(velocity.comp(p.velocity))&&(coordinate.comp(p.coordinate))&&(force.comp(p.force))&&(name==p.name)) s = true;
+        if ((mass == p.mass)&&(charge == p.charge)&&(velocity == p.velocity)&&(coordinate == p.coordinate)&&(force == p.force)&&(name == p.name)) s = true;
         return s;
     }
 
-    int GetCounter() {return counter;}
-    Logger GetLogger() {return logger;}
+    int GetCounter() const{return counter;}
+    Logger GetLogger() const{return logger;}
 
 };
 
@@ -132,25 +120,25 @@ class Electron : public Particle {
 public:
     // в этом конструкторе предлагается задавать координаты и через энергию остальные параметры частицы
     Electron(){
-    name = "Electron";
-    mass = 9,1 * pow (10, -31);
-    charge = -1,6 * pow(10, -19);
-    logger.log("Creation of " + name + "\n");
+        name = "Electron";
+        mass = 9,1 * pow (10, -31);
+        charge = -1,6 * pow(10, -19);
+        logger.log("Creation of " + name + "\n");
     };
 
     Electron(vector3 coordinate, vector3 velocity, vector3 force){
-    Electron();
-    this->coordinate = coordinate;
-    this->velocity = velocity;
-    this->force = force;
+        Electron();
+        this->coordinate = coordinate;
+        this->velocity = velocity;
+        this->force = force;
     };
 
     explicit Electron(double energy, vector3 coords) {
-    Electron();
-    coordinate.x = coords.x;
-    coordinate.y = coords.y;
-    coordinate.z = coords.z;
-    velocity.x = velocity.y = velocity.z = sqrt(energy * 2 / mass);
+        Electron();
+        coordinate.x = coords.x;
+        coordinate.y = coords.y;
+        coordinate.z = coords.z;
+        velocity.x = velocity.y = velocity.z = sqrt(energy * 2 / mass);
     };
 };
 
@@ -158,24 +146,24 @@ class Proton : public Particle {
 public:
     // в этом конструкторе предлагается задавать координаты и через энергию остальные параметры частицы
     Proton() {
-    name = "Proton";
-    mass = 1,3 * pow (10, -27);
-    charge = 1,6 * pow(10, -19);
+        name = "Proton";
+        mass = 1,3 * pow (10, -27);
+        charge = 1,6 * pow(10, -19);
     };
 
-    Proton(vector3 coordinate, vector3 velocity, vector3 force){
-    Proton();
-    this->coordinate = coordinate;
-    this->velocity = velocity;
-    this->force = force;
+    Proton(vector3 coordinate, vector3 velocity, vector3 force) {
+        Proton();
+        this->coordinate = coordinate;
+        this->velocity = velocity;
+        this->force = force;
     };
 
     explicit Proton(double energy, vector3 coords) {
-    Proton();
-    coordinate.x = coords.x;
-    coordinate.y = coords.y;
-    coordinate.z = coords.z;
-    velocity.x = velocity.y = velocity.z = sqrt(energy * 2 / mass);
+        Proton();
+        coordinate.x = coords.x;
+        coordinate.y = coords.y;
+        coordinate.z = coords.z;
+        velocity.x = velocity.y = velocity.z = sqrt(energy * 2 / mass);
     };
 };
 
@@ -183,18 +171,18 @@ class Neutron : public Particle {
 public:
     // в этом конструкторе предлагается задавать координаты и через энергию остальные параметры частицы
     Neutron() {
-    name = "Neutron";
-    mass = 1,7 * pow (10, -27);
-    charge = 0;
-    logger.log("Creation of " + name + "\n");
-    counter++;};
+        name = "Neutron";
+        mass = 1,7 * pow (10, -27);
+        charge = 0;
+        logger.log("Creation of " + name + "\n");
+        counter++;};
 
     explicit Neutron(double energy, vector3 coords) {
-    Neutron();
-    coordinate.x = coords.x;
-    coordinate.y = coords.y;
-    coordinate.z = coords.z;
-    velocity.x = velocity.y = velocity.z = sqrt(energy * 2 / mass);
+        Neutron();
+        coordinate.x = coords.x;
+        coordinate.y = coords.y;
+        coordinate.z = coords.z;
+        velocity.x = velocity.y = velocity.z = sqrt(energy * 2 / mass);
     };
 };
 
@@ -224,7 +212,7 @@ public:
         bool b = true;
         std::vector<Particle> :: iterator it = v.begin();
         while (b) {
-            if (((*it).getMass() == p.getMass())&&((*it).getCharge() == p.getCharge())&&((*it).getCoord().comp(p.getCoord()))&&((*it).getVelo().comp(p.getVelo()))&&((*it).getForce().comp(p.getForce()))&&((*it).getName() == p.getName())) b = false;
+            if (((*it).getMass() == p.getMass())&&((*it).getCharge() == p.getCharge())&&((*it).getCoord() == p.getCoord())&&((*it).getVelo() == p.getVelo())&&((*it).getForce() == p.getForce())&&((*it).getName() == p.getName())) b = false;
             else it++;
         }
         (*it).GetLogger().log("Deleting of " + (*it).getName());
